@@ -726,7 +726,7 @@ function mp_getwxcontent($link, $weObj)
         $user->activate();
         // Save user account.
         $user->save();
-//		\Drupal::logger('create mp account user')->notice($user->id() . ': ' . $user->getUsername());
+        //		\Drupal::logger('create mp account user')->notice($user->id() . ': ' . $user->getUsername());
         // $html = file_get_contents($html);
         // preg_match('/var fakeid   = "(\S+)"/',  $ori_html , $matchs);
         preg_match('/var appuin = "(\S+)"/', $ori_html, $matchs);
@@ -770,7 +770,7 @@ function mp_getwxcontent($link, $weObj)
         return $resources;
     }
 
-    preg_match('/vid=\S[^"|^&]+/', $ori_html, $matchs);//vid=s0354348eo8
+    preg_match('/vid=\S[^"|^&|^vid|^+]+/', $ori_html, $matchs);//vid=s0354348eo8
     if (isset($matchs[0])) {
         $video_url = str_replace('vid=', '', $matchs[0]);
     }
@@ -802,39 +802,40 @@ function mp_getwxcontent($link, $weObj)
 //	}
     $field_user_name = $html->find('#post-user', 0)->plaintext;
 //	$node->field_sourcex[LANGUAGE_NONE][0]['value'] = $field_user_name;//文章来源
-
-    $node = Node::create([
+    $_tmp_array = [
         'type'    => 'article',
         'created' => REQUEST_TIME,
         'uid'     => $user->id(),
         'title'   => $title,
         // An array with taxonomy terms.
-//			'field_tags' =>[2],
-//		'field_lymeta_tid' =>[$tid],
+//          'field_tags' =>[2],
+//      'field_lymeta_tid' =>[$tid],
         'body'    => [
             'summary' => $summary,
             'value'   => $body,
             'format'  => 'full_html',
         ],
-    ]);
-//	if(strpos($ori_title, '恩典365')!==FALSE){
-//		$node->type = 'grace365';
-//		$node->promote = 1;
-//		// get title
-//		$search =  array('&nbsp;','〔恩典365〕','(附文字版)','/','【恩典365】');
-//		$replace =  array(' ','','','','',);
-//		$title = str_replace($search, $replace, $ori_title);
-//		// get $body
-//		$begin = strpos($body, '恩典365 365天') + strlen('恩典365 365天 ');
-//		if(!$begin){
-//			watchdog('ybread', 'no 365', array(), WATCHDOG_NOTICE, 'link');
-//			return 'error!';
-//		}
-//		$end = strpos($body, '恩典365微信公众');
-//		$body = substr($body,$begin,$end-$begin);
-//	}else{
-//		$tid = 46;
-//	}
+    ];
+	if(strpos($ori_title, '恩典365')!==FALSE){
+		// $node->type = 'grace365';
+		// $node->promote = 1;
+		// get title
+		// $search =  array('&nbsp;','〔恩典365〕','(附文字版)','/','【恩典365】');
+		// $replace =  array(' ','','','','',);
+		// $title = str_replace($search, $replace, $ori_title);
+		// get $body
+		$begin = strpos($body, '我们天天一起活在神的爱和恩典里面。') + strlen('我们天天一起活在神的爱和恩典里面。');
+		if(!$begin){
+			watchdog('ybread', 'no 365', array(), WATCHDOG_NOTICE, 'link');
+			return 'error!';
+		}
+		$end = strpos($body, '影像及音乐版权均属天声传播协会所有');
+		$body = substr($body,$begin,$end-$begin);
+  
+        $_tmp_array['field_tags'] = [369];
+        $_tmp_array['body']['value'] = $body;
+	}
+    $node = Node::create($_tmp_array);
 
     /* @var  $weObj Wechat */
     $node->set('field_aticle_title', $ori_title);//原文标题

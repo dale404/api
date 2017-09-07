@@ -76,6 +76,14 @@ function xcjbook_preprocess_node(&$variables) {
 		$musicurl = $cdnlink . $path . upyun_get_token($path);//depends on lyapi.module
 		$variables['audio'] = $musicurl;
 	}
+	//fix bug todo: delete!!!
+	if($node->bundle()=='article'){
+		$vid = $node->get('field_article_video')->getString();
+		if(stripos($vid,'vid') !== false){
+    		$node->set('field_article_video', '');
+    		$node->save();
+		}
+	}
 }
 
 function xcjbook_preprocess_taxonomy_term(&$variables) {
