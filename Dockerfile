@@ -1,3 +1,4 @@
 FROM drupal:fpm
 COPY . /var/www/html/
-# VOLUME /var/www/html
+# must need volume
+VOLUME /var/www/html
